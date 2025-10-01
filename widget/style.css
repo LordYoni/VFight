@@ -23,7 +23,7 @@ body {
 
 .race-track {
   position: relative;
-  height: 110px; /* Augmenté pour les avatars plus grands */
+  height: 110px;
   margin: 15px 0;
 }
 
@@ -32,11 +32,11 @@ body {
   height: 35px;
   border-radius: 20px;
   position: absolute;
-  top: 60px; /* Descendu un peu pour laisser la place aux personnages */
+  top: 60px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
-  background: rgba(20, 20, 20, 0.8); /* Fond sombre pour mieux voir les couleurs */
-  overflow: hidden; /* Pour que les segments ne dépassent pas */
+  background: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
   position: relative;
 }
 
@@ -62,34 +62,33 @@ body {
 
 .character-runner {
   position: absolute;
-  top: -35px; /* Remonté encore plus haut */
+  top: -35px;
   left: 0;
   transition: left 1s ease-out;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 25; /* Au-dessus de la ligne d'arrivée */
+  z-index: 25;
 }
 
 .character-avatar {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: transparent; /* Pas de fond */
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
-  border: none; /* Suppression de la bordure */
-  box-shadow: none; /* Suppression de l'ombre */
+  border: none;
+  box-shadow: none;
   margin-bottom: 4px;
-  overflow: hidden; /* Pour que l'image ne dépasse pas */
+  overflow: hidden;
 }
 
 .character-avatar.winner {
   animation: bounce 0.6s ease infinite alternate;
   transform: scale(1.2);
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); /* Ombre dorée légère */
 }
 
 @keyframes bounce {
@@ -99,13 +98,14 @@ body {
 
 .character-name-tag {
   background: rgba(0, 0, 0, 0.8);
-  color: white;
+  color: white !important;
   padding: 2px 6px;
   border-radius: 10px;
   font-size: 0.6rem;
   font-weight: 700;
   border: 1px solid rgba(255, 255, 255, 0.3);
   white-space: nowrap;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .progress-indicators {
@@ -116,10 +116,10 @@ body {
 }
 
 .progress-info {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.9);
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 1);
   flex: 1;
 }
 
@@ -130,24 +130,27 @@ body {
   align-items: center;
   gap: 4px;
   font-size: 0.9rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .progress-info .amount {
   font-size: 1rem;
   color: #a78bfa;
   font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .finish-line {
   position: absolute;
   right: 10px; 
-  top: -5px; /* Remonté encore plus haut */
+  top: -5px;
   opacity: 0.9;
-  z-index: 20; /* Au-dessus de tout */
+  z-index: 20;
 }
 
 .finish-line img {
-  width: 80px;  /* Légèrement plus petit pour ne pas gêner */
+  width: 80px;
   height: auto;
 }
 

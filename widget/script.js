@@ -119,30 +119,49 @@ function updateProgressBar() {
   // Vider la barre avant de la reconstruire
   progressBar.innerHTML = '';
   
-  // Créer les segments de progression pour chaque personnage
+  // Créer un tableau avec les données de progression pour le tri
+  const progressData = [];
   for (let i = 0; i < 3; i++) {
     const amount = progress[i] || 0;
     const percent = Math.min(100, (amount / raceGoal) * 100);
     const color = currentCharacterColors[i] || "#ffffff";
     
     if (percent > 0) {
-      const segment = document.createElement('div');
-      segment.className = 'progress-segment';
-      segment.style.cssText = `
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: ${percent}%;
-        height: 100%;
-        background: linear-gradient(90deg, ${color}CC, ${color}80);
-        border-radius: 20px;
-        z-index: ${10 - i};
-        transition: width 0.8s ease-out;
-        border: 1px solid ${color};
-      `;
-      progressBar.appendChild(segment);
+      progressData.push({
+        index: i,
+        amount: amount,
+        percent: percent,
+        color: color
+      });
     }
   }
+  
+  // Trier par montant : du plus faible au plus élevé
+  progressData.sort((a, b) => a.amount - b.amount);
+  
+  // Créer les segments dans l'ordre : plus faible en haut (z-index élevé), plus élevé en bas (z-index faible)
+  progressData.forEach((data, sortedIndex) => {
+    const segment = document.createElement('div');
+    segment.className = 'progress-segment';
+    // z-index : plus le montant est faible, plus le z-index est élevé (donc au-dessus)
+    const zIndex = 20 + (progressData.length - sortedIndex);
+    
+    segment.style.cssText = `
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: ${data.percent}%;
+      height: 100%;
+      background: linear-gradient(90deg, ${data.color}CC, ${data.color}CC);
+      border-radius: 20px;
+      z-index: ${zIndex};
+      transition: width 0.8s ease-out;
+      border: 1px solid ${data.color};
+    `;
+    progressBar.appendChild(segment);
+    
+    console.log(`Segment ${data.index}: ${data.amount}€ (${data.percent}%) - z-index: ${zIndex}`); // Debug
+  });
 }
 
 // --- Commencer une course ---
