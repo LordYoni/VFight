@@ -51,7 +51,7 @@ let raceActive = false;
 let raceGoal = 100;
 let progress = [0, 0, 0];
 let characters = [];
-let currentCharacterColors = ["#ff6b6b", "#4ecdc4", "#45b7d1"]; // Couleurs par défaut
+let currentCharacterColors = ["#D7F15E", "#0064DC", "#142543"]; // Couleurs par défaut
 
 // --- Mise à jour de l'interface ---
 function updateUI() {
@@ -89,7 +89,7 @@ function updateUI() {
       amountElement.style.color = color;
     }
     if (characterNameElement) {
-      characterNameElement.textContent = `🎮 ${displayName}`;
+      characterNameElement.textContent = `  ${displayName}`;
       characterNameElement.style.color = color;
     }
     if (nameTagElement) {
@@ -105,7 +105,7 @@ function updateUI() {
       if (imgSrc) {
         avatarDiv.innerHTML = `<img src="${imgSrc}" alt="${character}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
       } else {
-        avatarDiv.textContent = "🎮";
+        avatarDiv.textContent = "";
       }
     }
   }
@@ -155,7 +155,7 @@ function startRace(goal) {
   characters = pickRandomCharacters(3);
   
   // Assigner des couleurs aléatoires différentes pour chaque personnage
-  const availableColors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#dda0dd", "#98d8c8", "#f7dc6f", "#bb8fce", "#85c1e9"];
+  const availableColors = ["#D7F15E", "#0064DC", "#142543"];
   currentCharacterColors = [];
   for (let i = 0; i < 3; i++) {
     const randomIndex = Math.floor(Math.random() * availableColors.length);
@@ -269,6 +269,31 @@ window.addEventListener('onEventReceived', function (obj) {
   if (listener === "message") {
     const text = (data.data && data.data.text) ? data.data.text.trim() : '';
     console.log('Message reçu:', text); // Debug
+    
+    // Vérifier si l'utilisateur est modérateur ou streamer
+    const userData = data.data;
+    const isModerator = userData && (userData.badges && userData.badges.moderator) || 
+                       (userData.tags && userData.tags.mod === '1') ||
+                       (userData.role && userData.role === 'moderator');
+    const isBroadcaster = userData && (userData.badges && userData.badges.broadcaster) ||
+                         (userData.tags && userData.tags.badges && userData.tags.badges.includes('broadcaster')) ||
+                         (userData.role && userData.role === 'broadcaster');
+    const isAuthorized = isModerator || isBroadcaster;
+    
+    console.log('Permissions utilisateur:', { isModerator, isBroadcaster, isAuthorized }); // Debug
+    
+    // Commandes réservées aux modos/streamer
+    if (text.startsWith("&start") || text === "&stop" || text === "&reset" || 
+        text === "&restart" || text.startsWith("&don")) {
+      
+      if (!isAuthorized) {
+        console.log('Commande refusée - utilisateur non autorisé'); // Debug
+        return; // Ignorer la commande
+      }
+      
+      console.log('Commande autorisée pour modérateur/streamer'); // Debug
+    }
+    
     if (text.startsWith("&start")) {
       const parts = text.split(" ");
       const goal = parseInt(parts[1]) || 100;
@@ -281,6 +306,19 @@ window.addEventListener('onEventReceived', function (obj) {
     } else if (text === "&restart") {
       console.log('Commande restart reçue'); // Debug
       restartWithRandomGoal();
+    } else if (text.startsWith("&don")) {
+      // Commande pour simuler un don : &don [personnage] [montant]
+      const parts = text.split(" ");
+      if (parts.length >= 3) {
+        const characterName = parts[1];
+        const amount = parseFloat(parts[2]) || 0;
+        console.log(`Simulation don via commande: ${amount}€ pour ${characterName}`); // Debug
+        if (amount > 0) {
+          addDonation(characterName, amount);
+        }
+      } else {
+        console.log('Format de commande don incorrect. Utilisez: &don [personnage] [montant]'); // Debug
+      }
     }
   }
 
@@ -319,7 +357,7 @@ window.addEventListener('onEventReceived', function (obj) {
 
 // --- MODE DEBUG ---
 // Active pour tester en local, désactive avant le live
-const DEBUG = true;
+const DEBUG = false;
 
 // --- Initialisation au chargement de la page ---
 document.addEventListener('DOMContentLoaded', function() {
