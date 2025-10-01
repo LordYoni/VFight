@@ -1,113 +1,315 @@
+// --- Liste des personnages ---
 const characterPool = [
-  "Test1", "Test2", "Test3"
+  "Agnes_Tachyon", "Air_Groove", "Cheval_Grand", "Daiwa_Scarlet", "El_Condor_Pasa",
+  "Gold_Ship", "Grass_Wonder", "Haru_Urara", "Hishi_Akebono",
+  "Hishi_Amazon", "Kitasan_Black", "Matikane_Fukukitaru", "Matikane_Tannhauser",
+  "Mayano_Top_Gun", "Mejiro_Mcqueen", "Mejiro_Ryan", "Mihono_Bourbon",
+  "Neo_Universe", "Nice_Nature", "Oguri_Cap", "Rice_Shower",
+  "Sakura_Bakushin_O", "Satono_Diamond", "Silence_Suzuka", "Special_Week",
+  "Symboli_Rudolf", "T_M_Opera_O", "Taiki_Shuttle", "Tokai_Teio",
+  "Twin_Turbo", "Vodka", "Zenno_Rob_Roy"
 ];
 
+// --- Mapping personnages → images ---
+const characterImages = {
+  "Agnes_Tachyon": "../Chibi/Agnes_Tachyon.webp",
+  "Air_Groove": "../Chibi/Air_Groove.webp",
+  "Cheval_Grand": "../Chibi/Cheval_Grand.webp",
+  "Daiwa_Scarlet": "../Chibi/Daiwa_Scarlet.webp",
+  "El_Condor_Pasa": "../Chibi/El_Condor_Pasa.webp",
+  "Gold_Ship": "../Chibi/Gold_Ship.webp",
+  "Grass_Wonder": "../Chibi/Grass_Wonder.webp",
+  "Haru_Urara": "../Chibi/Haru_Urara.webp",
+  "Hishi_Akebono": "../Chibi/Hishi_Akebono.webp",
+  "Hishi_Amazon": "../Chibi/Hishi_Amazon.webp",
+  "Kitasan_Black": "../Chibi/Kitasan_Black.webp",
+  "Matikane_Fukukitaru": "../Chibi/Matikane_Fukukitaru.webp",
+  "Matikane_Tannhauser": "../Chibi/Matikane_Tannhauser.webp",
+  "Mayano_Top_Gun": "../Chibi/Mayano_Top_Gun.webp",
+  "Mejiro_Mcqueen": "../Chibi/Mejiro_Mcqueen.webp",
+  "Mejiro_Ryan": "../Chibi/Mejiro_Ryan.webp",
+  "Mihono_Bourbon": "../Chibi/Mihono_Bourbon.webp",
+  "Neo_Universe": "../Chibi/Neo_Universe.webp",
+  "Nice_Nature": "../Chibi/Nice_Nature.webp",
+  "Oguri_Cap": "../Chibi/Oguri_Cap.webp",
+  "Rice_Shower": "../Chibi/Rice_Shower.webp",
+  "Sakura_Bakushin_O": "../Chibi/Sakura_Bakushin_O.webp",
+  "Satono_Diamond": "../Chibi/Satono_Diamond.webp",
+  "Silence_Suzuka": "../Chibi/Silence_Suzuka.webp",
+  "Special_Week": "../Chibi/Special_Week.webp",
+  "Symboli_Rudolf": "../Chibi/Symboli_Rudolf.webp",
+  "T_M_Opera_O": "../Chibi/T_M_Opera_O.webp",
+  "Taiki_Shuttle": "../Chibi/Taiki_Shuttle.webp",
+  "Tokai_Teio": "../Chibi/Tokai_Teio.webp",
+  "Twin_Turbo": "../Chibi/Twin_Turbo.webp",
+  "Vodka": "../Chibi/Vodka.webp",
+  "Zenno_Rob_Roy": "../Chibi/Zenno_Rob_Roy_.webp"
+};
+
+// --- Variables globales ---
 let raceActive = false;
 let raceGoal = 100;
 let progress = [0, 0, 0];
 let characters = [];
+let currentCharacterColors = ["#ff6b6b", "#4ecdc4", "#45b7d1"]; // Couleurs par défaut
 
+// --- Mise à jour de l'interface ---
 function updateUI() {
-  // Avancement des personnages
+  console.log("updateUI appelé - characters:", characters, "progress:", progress); // Debug
+  
+  // Mettre à jour la barre de progression colorée
+  updateProgressBar();
+  
   for (let i = 0; i < 3; i++) {
     const runner = document.getElementById(`runner${i+1}`);
     const info = document.getElementById(`progressInfo${i+1}`);
-    const amount = progress[i];
+    const amount = progress[i] || 0;
+    const character = characters[i] || `Personnage ${i+1}`;
+    const color = currentCharacterColors[i] || "#ffffff";
 
+    if (!runner || !info) {
+      console.log(`Éléments manquants pour runner ${i+1}`); // Debug
+      continue;
+    }
+
+    // Déplacement du runner
     const percent = Math.min(100, (amount / raceGoal) * 100);
-    runner.style.left = `calc(${percent}% - 30px)`;
+    runner.style.left = `calc(${percent}% - 30px)`; // Ajusté pour la nouvelle position
 
-    info.querySelector(".amount").textContent = `${amount}€ / ${raceGoal}€`;
-    info.querySelector(".character-name").textContent = `🎮 ${characters[i]}`;
-    runner.querySelector(".character-name-tag").textContent = characters[i];
+    // Infos de progression avec couleurs
+    const amountElement = info.querySelector(".amount");
+    const characterNameElement = info.querySelector(".character-name");
+    const nameTagElement = runner.querySelector(".character-name-tag");
+    
+    // Remplacer les underscores par des espaces pour l'affichage
+    const displayName = character.replace(/_/g, ' ');
+    
+    if (amountElement) {
+      amountElement.textContent = `${amount}€ / ${raceGoal}€`;
+      amountElement.style.color = color;
+    }
+    if (characterNameElement) {
+      characterNameElement.textContent = `🎮 ${displayName}`;
+      characterNameElement.style.color = color;
+    }
+    if (nameTagElement) {
+      nameTagElement.textContent = displayName;
+      nameTagElement.style.backgroundColor = color;
+      nameTagElement.style.color = "#000";
+    }
+
+    // Avatar sans bordures
+    const avatarDiv = runner.querySelector(".character-avatar");
+    if (avatarDiv) {
+      const imgSrc = characterImages[character] || "";
+      if (imgSrc) {
+        avatarDiv.innerHTML = `<img src="${imgSrc}" alt="${character}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+      } else {
+        avatarDiv.textContent = "🎮";
+      }
+    }
   }
 }
 
+// --- Mettre à jour la barre de progression colorée ---
+function updateProgressBar() {
+  const progressBar = document.querySelector('.main-progress-bar');
+  if (!progressBar) return;
+  
+  // Vider la barre avant de la reconstruire
+  progressBar.innerHTML = '';
+  
+  // Créer les segments de progression pour chaque personnage
+  for (let i = 0; i < 3; i++) {
+    const amount = progress[i] || 0;
+    const percent = Math.min(100, (amount / raceGoal) * 100);
+    const color = currentCharacterColors[i] || "#ffffff";
+    
+    if (percent > 0) {
+      const segment = document.createElement('div');
+      segment.className = 'progress-segment';
+      segment.style.cssText = `
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: ${percent}%;
+        height: 100%;
+        background: linear-gradient(90deg, ${color}CC, ${color}80);
+        border-radius: 20px;
+        z-index: ${10 - i};
+        transition: width 0.8s ease-out;
+        border: 1px solid ${color};
+      `;
+      progressBar.appendChild(segment);
+    }
+  }
+}
+
+// --- Commencer une course ---
 function startRace(goal) {
+  console.log(`startRace appelé avec goal: ${goal}`); // Debug
+  
   raceGoal = goal;
   raceActive = true;
   progress = [0, 0, 0];
   characters = pickRandomCharacters(3);
+  
+  // Assigner des couleurs aléatoires différentes pour chaque personnage
+  const availableColors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#dda0dd", "#98d8c8", "#f7dc6f", "#bb8fce", "#85c1e9"];
+  currentCharacterColors = [];
+  for (let i = 0; i < 3; i++) {
+    const randomIndex = Math.floor(Math.random() * availableColors.length);
+    currentCharacterColors.push(availableColors.splice(randomIndex, 1)[0]);
+  }
+  
+  console.log(`Course démarrée avec objectif ${goal}€. Personnages:`, characters); // Debug
+  console.log(`Couleurs assignées:`, currentCharacterColors); // Debug
 
-  document.getElementById("goalDisplay").textContent = `🎯 Objectif : ${goal}€`;
-  document.getElementById("statusDisplay").textContent = `Course lancée ! Premier à atteindre ${goal}€ gagne !`;
+  const goalDisplay = document.getElementById("goalDisplay");
+  if (goalDisplay) goalDisplay.textContent = `🎯 Objectif : ${goal}€`;
+  const statusDisplay = document.getElementById("statusDisplay");
+  if (statusDisplay) statusDisplay.textContent = `Course lancée ! Premier à atteindre ${goal}€ gagne !`;
 
   updateUI();
 }
 
+// --- Arrêter la course ---
 function stopRace() {
   raceActive = false;
-  document.getElementById("statusDisplay").textContent = "Course arrêtée.";
+  const statusDisplay = document.getElementById("statusDisplay");
+  if (statusDisplay) statusDisplay.textContent = "Course arrêtée.";
 }
 
+// --- Réinitialiser la course ---
 function resetRace() {
   raceActive = false;
   progress = [0, 0, 0];
-  document.getElementById("statusDisplay").textContent = "En attente d'une nouvelle course...";
+  
+  // Repositionner tous les coureurs au début
+  for (let i = 0; i < 3; i++) {
+    const runner = document.getElementById(`runner${i+1}`);
+    if (runner) {
+      runner.style.left = "0px"; // Remettre au début
+      const avatar = runner.querySelector(".character-avatar");
+      if (avatar) {
+        avatar.classList.remove("winner"); // Supprimer l'animation de victoire
+      }
+    }
+  }
+  
+  const statusDisplay = document.getElementById("statusDisplay");
+  if (statusDisplay) statusDisplay.textContent = "En attente d'une nouvelle course...";
   updateUI();
 }
 
+// --- Choisir des personnages aléatoires ---
 function pickRandomCharacters(n) {
   const shuffled = [...characterPool].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, n);
 }
 
+// --- Ajouter une donation ---
 function addDonation(character, amount) {
-  if (!raceActive) return;
+  console.log(`Tentative donation: ${amount}€ pour ${character}. Course active: ${raceActive}`); // Debug
+  if (!raceActive) {
+    console.log("Course inactive, donation ignorée"); // Debug
+    return;
+  }
 
   const index = characters.findIndex(c => c.toLowerCase() === character.toLowerCase());
+  console.log(`Index trouvé pour ${character}: ${index}. Personnages actuels:`, characters); // Debug
+  
   if (index !== -1) {
     progress[index] += amount;
+    console.log(`Nouveau progress[${index}]: ${progress[index]}/${raceGoal}`); // Debug
     showDonationAlert(character, amount);
     updateUI();
 
+    // Vérifier le gagnant
     if (progress[index] >= raceGoal) {
       raceActive = false;
-      const runner = document.querySelector(`#runner${index+1} .character-avatar`);
-      runner.classList.add("winner");
-      document.getElementById("statusDisplay").textContent = `🏆 ${character} remporte la course !`;
+      const runnerAvatar = document.querySelector(`#runner${index+1} .character-avatar`);
+      if (runnerAvatar) runnerAvatar.classList.add("winner");
+      const statusDisplay = document.getElementById("statusDisplay");
+      const displayName = character.replace(/_/g, ' '); // Remplacer les underscores par des espaces
+      if (statusDisplay) statusDisplay.textContent = `🏆 ${displayName} remporte la course ! Tapez &restart pour relancer.`;
+      console.log(`${displayName} a gagné la course!`); // Debug
     }
+  } else {
+    console.log(`Personnage ${character} non trouvé dans la course actuelle`); // Debug
   }
 }
 
+// --- Afficher l'alerte de donation ---
 function showDonationAlert(character, amount) {
   const alertBox = document.getElementById("donationAlert");
-  alertBox.textContent = `💸 +${amount}€ pour ${character} !`;
+  const displayName = character.replace(/_/g, ' '); // Remplacer les underscores par des espaces
+  alertBox.textContent = `💸 +${amount}€ pour ${displayName} !`;
   alertBox.classList.add("show");
-
-  setTimeout(() => {
-    alertBox.classList.remove("show");
-  }, 3000);
+  setTimeout(() => alertBox.classList.remove("show"), 3000);
 }
 
-// Gestion des events de StreamElements
+// --- Redémarrer avec nouvel objectif aléatoire ---
+function restartWithRandomGoal() {
+  // Générer un objectif aléatoire entre 100€ et 500€ (multiples de 50)
+  const possibleGoals = [100, 150, 200, 250, 300, 350, 400, 450, 500];
+  const randomGoal = possibleGoals[Math.floor(Math.random() * possibleGoals.length)];
+  
+  console.log(`Redémarrage avec objectif aléatoire: ${randomGoal}€`); // Debug
+  startRace(randomGoal);
+}
+
+// --- Gestion des events StreamElements/Streamlabs ---
 window.addEventListener('onEventReceived', function (obj) {
+  console.log('Event reçu:', obj.detail); // Debug
   if (!obj.detail || !obj.detail.event) return;
   const listener = obj.detail.listener;
   const data = obj.detail.event;
 
   if (listener === "message") {
-    const text = data.data.text.trim();
+    const text = (data.data && data.data.text) ? data.data.text.trim() : '';
+    console.log('Message reçu:', text); // Debug
     if (text.startsWith("&start")) {
       const parts = text.split(" ");
       const goal = parseInt(parts[1]) || 100;
+      console.log('Démarrage course avec objectif:', goal); // Debug
       startRace(goal);
-    }
-    else if (text === "&stop") {
+    } else if (text === "&stop") {
       stopRace();
-    }
-    else if (text === "&reset") {
+    } else if (text === "&reset") {
       resetRace();
+    } else if (text === "&restart") {
+      console.log('Commande restart reçue'); // Debug
+      restartWithRandomGoal();
     }
   }
 
-  if (listener === "tip-latest" || listener === "donation-latest") {
-    const message = data.message || "";
-    const amount = parseFloat(data.amount) || 0;
-    if (!amount || !raceActive) return;
+  // Gestion des donations normales et des donations de charité
+  if (listener === "tip-latest" || listener === "donation-latest" || listener === "charity-latest") {
+    let message = "";
+    let amount = 0;
+    
+    // Gestion spécifique pour Streamlabs Charity
+    if (listener === "charity-latest") {
+      message = data.message || data.comment || "";
+      amount = parseFloat(data.amount) || parseFloat(data.donation_amount) || 0;
+      console.log('Donation Charity reçue:', { message, amount, data }); // Debug
+    } else {
+      // Gestion normale pour tips/donations
+      message = data.message || "";
+      amount = parseFloat(data.amount) || 0;
+      console.log('Donation normale reçue:', { message, amount, data }); // Debug
+    }
+    
+    if (!amount || !raceActive) {
+      console.log('Donation ignorée - montant:', amount, 'course active:', raceActive);
+      return;
+    }
 
+    // Chercher le personnage mentionné dans le message
     for (let char of characters) {
-      if (message.toLowerCase().includes(char.toLowerCase())) {
+      if (message.toLowerCase().includes(char.toLowerCase().replace(/_/g, ' ')) || 
+          message.toLowerCase().includes(char.toLowerCase())) {
         addDonation(char, amount);
         break;
       }
@@ -119,25 +321,53 @@ window.addEventListener('onEventReceived', function (obj) {
 // Active pour tester en local, désactive avant le live
 const DEBUG = true;
 
-if (DEBUG) {
-  console.log("Mode DEBUG actif : simulation des commandes...");
-  setTimeout(() => {
-    console.log("Simulation: &start 200");
-    const fakeEvent = { detail: { 
-      listener: "message", 
-      event: { data: { text: "&start 200", displayName: "TestUser" } } 
-    }};
-    window.dispatchEvent(new CustomEvent("onEventReceived", fakeEvent));
-  }, 2000);
+// --- Initialisation au chargement de la page ---
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM Content Loaded - Initialisation..."); // Debug
+  
+  // Initialiser l'interface avec des personnages par défaut
+  characters = ["Air_Groove", "Gold_Ship", "Special_Week"];
+  console.log("Personnages initiaux:", characters); // Debug
+  
+  updateUI();
+  
+  if (DEBUG) {
+    console.log("Mode DEBUG actif : simulation des commandes...");
+    
+    // Démarrer une course après 2 secondes
+    setTimeout(() => {
+      console.log("Tentative de démarrage de course...");
+      startRace(200);
+    }, 2000);
 
-  setTimeout(() => {
-    console.log("Simulation: don 50€ pour Mario");
-    addDonation("Test1", 50);
-  }, 5000);
+    // Simulation de donations
+    setTimeout(() => {
+      if (raceActive && characters.length > 0) {
+        console.log(`Simulation: don 50€ pour ${characters[0]}`);
+        addDonation(characters[0], 50);
+      }
+    }, 5000);
 
-  setTimeout(() => {
-    console.log("Simulation: don 200€ pour Luigi");
-    addDonation("Test3", 200);
-  }, 9000);
-}
+    setTimeout(() => {
+      if (raceActive && characters.length > 1) {
+        console.log(`Simulation: don 75€ pour ${characters[1]}`);
+        addDonation(characters[1], 75);
+      }
+    }, 7000);
+
+    setTimeout(() => {
+      if (raceActive && characters.length > 2) {
+        console.log(`Simulation: don 200€ pour ${characters[2]} (gagnant!)`);
+        addDonation(characters[2], 200);
+      }
+    }, 9000);
+
+    // Reset complet après 10 secondes (quand la course est finie)
+    setTimeout(() => {
+      console.log("DEBUG: Reset complet de la course...");
+      resetRace();
+      console.log("DEBUG: Tout a été remis à zéro");
+    }, 15000);
+  }
+});
 
